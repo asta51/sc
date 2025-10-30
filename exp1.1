@@ -1,0 +1,19 @@
+import numpy as np, matplotlib.pyplot as plt
+
+T,F=np.arange(41),np.arange(101)
+def cold(x): return np.clip((20-x)/20,0,1)
+def warm(x): return np.clip(np.minimum((x-15)/10,(35-x)/10),0,1)
+def hot(x): return np.clip((x-30)/10,0,1)
+def slow(x): return np.clip((50-x)/50,0,1)
+def medium(x): return np.clip(np.minimum((x-25)/25,(75-x)/25),0,1)
+def fast(x): return np.clip((x-50)/50,0,1)
+def fan_speed(t): c,w,h=cold(t),warm(t),hot(t);return (c*20+w*50+h*90)/(c+w+h)
+
+t=28
+print(f"\nTemp: {t}°C\nFan Speed: {fan_speed(t):.2f}%")
+
+for funcs,vals,title in [([(cold,'Cold'),(warm,'Warm'),(hot,'Hot')],T,'Temperature'),
+                         ([(slow,'Slow'),(medium,'Medium'),(fast,'Fast')],F,'Fan Speed')]:
+    plt.figure(figsize=(6,3))
+    for f,n in funcs: plt.plot(vals,[f(x) for x in vals],label=n)
+    plt.xlabel(title);plt.ylabel('Membership');plt.title(f'{title} Membership');plt.legend();plt.grid();plt.show()
