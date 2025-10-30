@@ -1,0 +1,29 @@
+import random, math, matplotlib.pyplot as plt
+
+f = lambda x, y: math.sin(x) + math.sin(y)
+init = lambda n, l, u: [(random.uniform(l,u), random.uniform(l,u)) for _ in range(n)]
+sel = lambda pop: random.choices(pop, weights=[abs(f(*ind)) for ind in pop], k=2)
+cross = lambda a, b: ((a[0],b[1]), (b[0],a[1])) if random.random() < 0.7 else (a,b)
+mut = lambda x: (x[0]+random.uniform(-0.1,0.1) if random.random()<0.01 else x[0],
+                 x[1]+random.uniform(-0.1,0.1) if random.random()<0.01 else x[1])
+
+def GA(gen, pop_n, l, u):
+    pop, hist = init(pop_n, l, u), []
+    for g in range(gen):
+        new = []
+        while len(new) < pop_n:
+            p1, p2 = sel(pop)
+            c1, c2 = cross(p1, p2)
+            new += [mut(c1), mut(c2)]
+        pop = new[:pop_n]
+        best = max(pop, key=lambda ind: f(*ind))
+        hist.append(f(*best))
+        print(f"Gen {g+1}: Best={best}, Fit={round(f(*best),4)}")
+    return max(pop, key=lambda ind: f(*ind)), hist
+
+if __name__ == "__main__":
+    best, hist = GA(50, 100, -2*math.pi, 2*math.pi)
+    print(f"\nBest solution found: {best}, Fitness = {round(f(*best),4)}")
+    plt.plot(range(1,51), hist, marker='o', color='blue')
+    plt.title("GA Convergence on f(x,y)=sin(x)+sin(y)")
+    plt.xlabel("Generation"); plt.ylabel("Best Fitness"); plt.grid(True); plt.show()
