@@ -1,0 +1,34 @@
+import random as r, math as m
+
+# Fitness
+f = lambda x, y, z: -(x**2+y**2+z**2)+10*(m.cos(2*m.pi*x)+m.cos(2*m.pi*y)+m.cos(2*m.pi*z))
+
+# Init population
+init = lambda n, l, u: [(r.uniform(l,u), r.uniform(l,u), r.uniform(l,u)) for _ in range(n)]
+
+# Selection (shift fitness to positive)
+def sel(pop):
+    fits = [f(*ind) for ind in pop]
+    min_f = min(fits)
+    return r.choices(pop, weights=[w - min_f + 1e-6 for w in fits], k=2)
+
+# Crossover (helper lambda for blending)
+bl = lambda p1, p2, a: tuple(a*x + (1-a)*y for x, y in zip(p1, p2))
+cross = lambda p1, p2: (bl(p1, p2, r.random()), bl(p1, p2, r.random())) if r.random() < 0.7 else (p1, p2)
+
+# Mutation
+mut = lambda ind: tuple(x + r.uniform(-0.1, 0.1) if r.random() < 0.01 else x for x in ind)
+
+# GA main loop (parameters: gen=50, pop_n=100, l=-1, u=1)
+pop = init(100, -1, 1)
+for g in range(50):
+    new_pop = []
+    for _ in range(50): # 100 pop_n // 2
+        p1, p2 = sel(pop)
+        c1, c2 = cross(p1, p2)
+        new_pop.extend([mut(c1), mut(c2)])
+    pop = new_pop
+    best = max(pop, key=lambda ind: f(*ind))
+    print(f"Gen {g+1}: Best={best}, Fitness={round(f(*best), 4)}")
+
+print(f"\nBest solution found: {best}, Fitness={round(f(*best), 4)}")
