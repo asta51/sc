@@ -1,0 +1,17 @@
+import numpy as np
+sig=lambda x:1/(1+np.exp(-x))
+dsig=lambda x:x*(1-x)
+
+X=np.array([[0,0],[0,1],[1,0],[1,1]])
+y=np.array([[0],[1],[1],[0]])
+np.random.seed(42)
+hW=np.random.rand(2,2);oW=np.random.rand(2,1)
+lr,ep=0.1,10000
+
+for _ in range(ep):
+    h=sig(X@hW);o=sig(h@oW);e=y-o
+    oD=e*dsig(o);hD=oD@oW.T*dsig(h)
+    oW+=h.T@oD*lr;hW+=X.T@hD*lr
+
+for x in X:
+    print(f"Input {x} → Predicted Output: {sig(sig(x@hW)@oW)[0]:.3f}")
